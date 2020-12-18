@@ -5,8 +5,8 @@ import string
 import unicodedata
 import spacy
 
-nlp = spacy.load("en_core_web_sm")
 science_training_file = "./science/train.txt"
+disease_training_file = "./disease/train.txt"
 
 
 class NamedEntity:
@@ -59,10 +59,10 @@ def build_up_training_data(doc, namedEntities):
     train_data = []
     i = 0
     for sentence in doc:
-        namedEntitiesForSentence = []
+        namedEntitiesForSentence = {}
         if i in namedEntities.keys():
             for namedEntityForSentence in namedEntities[i]:
-                namedEntitiesForSentence.append(namedEntityForSentence.constructTriplet())
+                namedEntitiesForSentence.setdefault("entities", []).append(namedEntityForSentence.constructTriplet())
         train_data.append((sentence, namedEntitiesForSentence))
         i = i + 1
     return train_data
@@ -98,7 +98,31 @@ def named_entity_recognition(raw_data):
     return build_up_training_data(doc, namedEntities)
 
 
+def build_up_model(train_data):
+    model = None
+    """
+    if model is not None:
+        nlp = spacy.load(model)
+        print("Loaded model '%s'" % model)
+    else:
+        nlp = spacy.blank('en')
+        print("Created blank 'en' model")
+
+    if 'ner' not in nlp.pipe_names:
+        ner = nlp.create_pipe('ner')
+        nlp.add_pipe(ner, last=True)
+    else:
+        ner = nlp.get_pipe('ner')
+
+    for _, annotations in train_data:
+        for ent in annotations.get('entities'):
+            ner.add_label(ent[2])
+    """
+    return model
+
+
 if __name__ == '__main__':
     raw_data = read_names(science_training_file)
     train_data = named_entity_recognition(raw_data)
     print(train_data)
+    model = build_up_model(train_data)
