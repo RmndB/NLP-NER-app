@@ -171,7 +171,7 @@ def run_named_entity_recognition(train_file, test_file, output_dir):
     train_data = named_entity_recognition(raw_train_data)
     test_data = named_entity_recognition(raw_test_data)
     # Training
-    if not science_output_dir.exists() or FORCE_UPDATE:
+    if not output_dir.exists() or FORCE_UPDATE:
         train_nlp(output_dir, train_data)
     # Testing
     analyse_doc(output_dir, test_data)
@@ -182,4 +182,4 @@ def run_named_entity_recognition(train_file, test_file, output_dir):
 
 if __name__ == '__main__':
     run_named_entity_recognition(science_train_file, science_test_file, science_output_dir)
-    run_named_entity_recognition(disease_train_file, disease_test_file, disease_test_file)
+    run_named_entity_recognition(disease_train_file, disease_test_file, disease_output_dir)
