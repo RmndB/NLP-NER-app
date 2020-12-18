@@ -3,12 +3,20 @@ from __future__ import unicode_literals
 
 import string
 import unicodedata
+
+from pathlib import Path
 import spacy
 import random
+from tqdm import tqdm
 
-science_train_file = "./science/train.txt"
-science_test_file = "./science/test.txt"
-nlp = spacy.blank("en")
+BONUS_DISPLAY = 0
+output_dir = Path("C:\\Users\\Bastien\\Desktop\\ner")
+# science_train_file = "./science/train.txt"
+science_train_file = "./science/train_short.txt"
+# science_test_file = "./science/test.txt"
+science_test_file = "./science/test_short"
+model = None
+n_iter = 100
 
 
 class NamedEntity:
@@ -100,20 +108,56 @@ def named_entity_recognition(raw_data):
     return build_up_training_data(doc, namedEntities)
 
 
-def train_nlp(train_data):
-    optimizer = nlp.begin_training()
-    for i in range(20):
-        random.shuffle(train_data)
-        for text, annotations in train_data:
-            nlp.update([text], [annotations], sgd=optimizer)
+def train_nlp(output_dir, train_data):
+    if model is not None:
+        nlp = spacy.load(model)
+        print("Loaded model '%s'" % model)
+    else:
+        nlp = spacy.blank('en')
+        print("Created blank 'en' model")
+
+    if 'ner' not in nlp.pipe_names:
+        ner = nlp.create_pipe('ner')
+        nlp.add_pipe(ner, last=True)
+    else:
+        ner = nlp.get_pipe('ner')
+
+    for _, annotations in train_data:
+        if annotations.get("entities") is not None:
+            for ent in annotations.get("entities"):
+                ner.add_label(ent[2])
+
+    other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'ner']
+    with nlp.disable_pipes(*other_pipes):
+        optimizer = nlp.begin_training()
+        for itn in range(n_iter):
+            random.shuffle(train_data)
+            losses = {}
+            for text, annotations in tqdm(train_data):
+                nlp.update(
+                    [text],
+                    [annotations],
+                    drop=0.5,
+                    sgd=optimizer,
+                    losses=losses)
+            if BONUS_DISPLAY:
+                print(losses)
+
+    if output_dir is not None:
+        output_dir = Path(output_dir)
+        if not output_dir.exists():
+            output_dir.mkdir()
+        nlp.to_disk(output_dir)
+        print("Saved model to", output_dir)
 
 
-def analyse_doc(test_data):
-    for sentence, entities in test_data:
-        doc = nlp(sentence)
-        print(len(doc.ents))
-        for ent in doc.ents:
-            print(ent.text, ent.start_char, ent.end_char, ent.label_)
+def analyse_doc(output_dir, test_data):
+    print("Loading from", output_dir)
+    nlp2 = spacy.load(output_dir)
+    for text, _ in test_data:
+        doc = nlp2(text)
+        print('Entities', [(ent.text, ent.label_) for ent in doc.ents])
+        print('Tokens', [(t.text, t.ent_type_, t.ent_iob) for t in doc])
 
 
 if __name__ == '__main__':
@@ -121,8 +165,11 @@ if __name__ == '__main__':
     raw_test_data = read_names(science_test_file)
     train_data = named_entity_recognition(raw_train_data)
     test_data = named_entity_recognition(raw_test_data)
-    train_nlp(train_data)
-    analyse_doc(test_data)
-    # DISPLAY
-    # print(train_data)
-    print("Done")
+
+    # Training
+    train_nlp(output_dir, train_data)
+    # Testing
+    analyse_doc(output_dir, test_data)
+
+    if BONUS_DISPLAY:
+        print(train_data)
