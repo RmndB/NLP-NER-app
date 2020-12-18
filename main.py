@@ -11,11 +11,9 @@ from tqdm import tqdm
 
 FORCE_UPDATE = 0
 BONUS_DISPLAY = 0
-output_dir = Path("C:\\Users\\Bastien\\Desktop\\ner")
-# science_train_file = "./science/train.txt"
-science_train_file = "./science/train_short.txt"
-# science_test_file = "./science/test.txt"
-science_test_file = "./science/test_short"
+science_output_dir = Path("science/ner")
+science_train_file = "./science/train.txt"
+science_test_file = "./science/test.txt"
 model = None
 n_iter = 100
 
@@ -168,10 +166,10 @@ if __name__ == '__main__':
     test_data = named_entity_recognition(raw_test_data)
 
     # Training
-    if not output_dir.exists() or FORCE_UPDATE:
-        train_nlp(output_dir, train_data)
+    if not science_output_dir.exists() or FORCE_UPDATE:
+        train_nlp(science_output_dir, train_data)
     # Testing
-    analyse_doc(output_dir, test_data)
+    analyse_doc(science_output_dir, test_data)
 
     if BONUS_DISPLAY:
         print(train_data)
