@@ -111,6 +111,7 @@ def named_entity_recognition(raw_data):
 
     return build_up_training_data(doc, namedEntities)
 
+
 # TODO: Rewrite this part (https://github.com/Nishk23/spaCy-Custom-NER-creation/blob/master/NER%20solution.ipynb)
 def train_nlp(output_dir, train_data):
     if model is not None:
