@@ -5,27 +5,12 @@ import string
 import unicodedata
 import spacy
 
-nlp = spacy.load("en_core_web_sm")
 
+nlp = spacy.load("en_core_web_sm")
 science_training_file = "./science/train.txt"
 
 
-def unicode_to_ascii(s):
-    all_letters = string.ascii_letters + " .,;'"
-    return ''.join(
-        c for c in unicodedata.normalize('NFD', s)
-        if unicodedata.category(c) != 'Mn'
-        and c in all_letters
-    )
-
-
-def read_names(filename):
-    with open(filename, encoding='utf-8') as f:
-        names = f.read().strip().split('\n')
-    return [name.split('\t') for name in names]
-
-
-class NamedEntities:
+class NamedEntity:
     label = ""
     begin = 0
     end = 0
@@ -44,6 +29,24 @@ class NamedEntities:
     def getEnd(self):
         return self.end
 
+    def constructTriplet(self):
+        return self.label, self.begin, self.end
+
+
+def unicode_to_ascii(s):
+    all_letters = string.ascii_letters + " .,;'"
+    return ''.join(
+        c for c in unicodedata.normalize('NFD', s)
+        if unicodedata.category(c) != 'Mn'
+        and c in all_letters
+    )
+
+
+def read_names(filename):
+    with open(filename, encoding='utf-8') as f:
+        names = f.read().strip().split('\n')
+    return [name.split('\t') for name in names]
+
 
 def named_entity_recognition(raw_data):
     namedEntities = {}
@@ -60,7 +63,7 @@ def named_entity_recognition(raw_data):
                 sentence = sentence + " " + pair[0]
 
             if pair[1] != 'O':
-                namedEntities.setdefault(y, []).append(NamedEntities(pair[1], len(sentence) - len(pair[0]), len(sentence)))
+                namedEntities.setdefault(y, []).append(NamedEntity(pair[1], len(sentence) - len(pair[0]), len(sentence)))
             i = i + 1
         else:
             i = 0
@@ -70,6 +73,7 @@ def named_entity_recognition(raw_data):
             sentence = ""
     if sentence != "":
         doc.append(sentence)
+
     # DISPLAY
     globalDisplay(doc, namedEntities)
 
@@ -80,7 +84,7 @@ def globalDisplay(doc, namedEntities):
         print(sentence)
         if i in namedEntities.keys():
             for namedEntitiesForSentence in namedEntities[i]:
-                print(namedEntitiesForSentence.getLabel() + " " + str(namedEntitiesForSentence.getBegin()) + " " + str(namedEntitiesForSentence.getEnd()))
+                print(namedEntitiesForSentence.constructTriplet())
         i = i + 1
 
 
