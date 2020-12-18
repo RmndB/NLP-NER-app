@@ -6,8 +6,9 @@ import unicodedata
 import spacy
 import random
 
-science_training_file = "./science/train.txt"
-disease_training_file = "./disease/train.txt"
+science_train_file = "./science/train.txt"
+science_test_file = "./science/test.txt"
+nlp = spacy.blank("en")
 
 
 class NamedEntity:
@@ -100,19 +101,28 @@ def named_entity_recognition(raw_data):
 
 
 def train_nlp(train_data):
-    nlp = spacy.blank("en")
     optimizer = nlp.begin_training()
     for i in range(20):
         random.shuffle(train_data)
         for text, annotations in train_data:
             nlp.update([text], [annotations], sgd=optimizer)
-    nlp.to_disk("/model")
-    return nlp
+
+
+def analyse_doc(test_data):
+    for sentence, entities in test_data:
+        doc = nlp(sentence)
+        print(len(doc.ents))
+        for ent in doc.ents:
+            print(ent.text, ent.start_char, ent.end_char, ent.label_)
 
 
 if __name__ == '__main__':
-    raw_data = read_names(science_training_file)
-    train_data = named_entity_recognition(raw_data)
-    print(train_data)
-    nlp = train_nlp(train_data)
+    raw_train_data = read_names(science_train_file)
+    raw_test_data = read_names(science_test_file)
+    train_data = named_entity_recognition(raw_train_data)
+    test_data = named_entity_recognition(raw_test_data)
+    train_nlp(train_data)
+    analyse_doc(test_data)
+    # DISPLAY
+    # print(train_data)
     print("Done")
