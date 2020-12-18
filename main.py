@@ -11,9 +11,14 @@ from tqdm import tqdm
 
 FORCE_UPDATE = 0
 BONUS_DISPLAY = 0
+
 science_output_dir = Path("science/ner")
 science_train_file = "./science/train.txt"
 science_test_file = "./science/test.txt"
+disease_output_dir = Path("disease/ner")
+disease_train_file = "./disease/train.txt"
+disease_test_file = "./disease/test.txt"
+
 model = None
 n_iter = 100
 
@@ -106,7 +111,7 @@ def named_entity_recognition(raw_data):
 
     return build_up_training_data(doc, namedEntities)
 
-
+# TODO: Rewrite this part (https://github.com/Nishk23/spaCy-Custom-NER-creation/blob/master/NER%20solution.ipynb)
 def train_nlp(output_dir, train_data):
     if model is not None:
         nlp = spacy.load(model)
@@ -152,24 +157,28 @@ def train_nlp(output_dir, train_data):
 
 def analyse_doc(output_dir, test_data):
     print("Loading from", output_dir)
-    nlp2 = spacy.load(output_dir)
+    nlp = spacy.load(output_dir)
     for text, _ in test_data:
-        doc = nlp2(text)
+        doc = nlp(text)
         print('Entities', [(ent.text, ent.label_) for ent in doc.ents])
         print('Tokens', [(t.text, t.ent_type_, t.ent_iob) for t in doc])
 
 
-if __name__ == '__main__':
-    raw_train_data = read_names(science_train_file)
-    raw_test_data = read_names(science_test_file)
+def run_named_entity_recognition(train_file, test_file, output_dir):
+    raw_train_data = read_names(train_file)
+    raw_test_data = read_names(test_file)
     train_data = named_entity_recognition(raw_train_data)
     test_data = named_entity_recognition(raw_test_data)
-
     # Training
     if not science_output_dir.exists() or FORCE_UPDATE:
-        train_nlp(science_output_dir, train_data)
+        train_nlp(output_dir, train_data)
     # Testing
-    analyse_doc(science_output_dir, test_data)
+    analyse_doc(output_dir, test_data)
 
     if BONUS_DISPLAY:
         print(train_data)
+
+
+if __name__ == '__main__':
+    run_named_entity_recognition(science_train_file, science_test_file, science_output_dir)
+    run_named_entity_recognition(disease_train_file, disease_test_file, disease_test_file)
