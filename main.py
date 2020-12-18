@@ -9,6 +9,7 @@ import spacy
 import random
 from tqdm import tqdm
 
+FORCE_UPDATE = 0
 BONUS_DISPLAY = 0
 output_dir = Path("C:\\Users\\Bastien\\Desktop\\ner")
 # science_train_file = "./science/train.txt"
@@ -167,7 +168,8 @@ if __name__ == '__main__':
     test_data = named_entity_recognition(raw_test_data)
 
     # Training
-    train_nlp(output_dir, train_data)
+    if not output_dir.exists() or FORCE_UPDATE:
+        train_nlp(output_dir, train_data)
     # Testing
     analyse_doc(output_dir, test_data)
 
