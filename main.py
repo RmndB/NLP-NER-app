@@ -5,7 +5,6 @@ import string
 import unicodedata
 import spacy
 
-
 nlp = spacy.load("en_core_web_sm")
 science_training_file = "./science/train.txt"
 
@@ -16,7 +15,7 @@ class NamedEntity:
     end = 0
 
     def __init__(self, label, begin, end):
-        self.label = label
+        self.label = remove_prefix(label, ["I-", "B-"])
         self.begin = begin
         self.end = end
 
@@ -30,7 +29,15 @@ class NamedEntity:
         return self.end
 
     def constructTriplet(self):
-        return self.label, self.begin, self.end
+        return self.begin, self.end, self.label
+
+
+def remove_prefix(text, prefixes):
+    for prefix in prefixes:
+        if text.startswith(prefix):
+            text = text.replace(prefix, "", 1)
+            return text
+    return text
 
 
 def unicode_to_ascii(s):
@@ -48,6 +55,19 @@ def read_names(filename):
     return [name.split('\t') for name in names]
 
 
+def build_up_training_data(doc, namedEntities):
+    train_data = []
+    i = 0
+    for sentence in doc:
+        namedEntitiesForSentence = []
+        if i in namedEntities.keys():
+            for namedEntityForSentence in namedEntities[i]:
+                namedEntitiesForSentence.append(namedEntityForSentence.constructTriplet())
+        train_data.append((sentence, namedEntitiesForSentence))
+        i = i + 1
+    return train_data
+
+
 def named_entity_recognition(raw_data):
     namedEntities = {}
     doc = []
@@ -63,7 +83,8 @@ def named_entity_recognition(raw_data):
                 sentence = sentence + " " + pair[0]
 
             if pair[1] != 'O':
-                namedEntities.setdefault(y, []).append(NamedEntity(pair[1], len(sentence) - len(pair[0]), len(sentence)))
+                namedEntities.setdefault(y, []).append(
+                    NamedEntity(pair[1], len(sentence) - len(pair[0]), len(sentence)))
             i = i + 1
         else:
             i = 0
@@ -74,20 +95,10 @@ def named_entity_recognition(raw_data):
     if sentence != "":
         doc.append(sentence)
 
-    # DISPLAY
-    globalDisplay(doc, namedEntities)
-
-
-def globalDisplay(doc, namedEntities):
-    i = 0
-    for sentence in doc:
-        print(sentence)
-        if i in namedEntities.keys():
-            for namedEntitiesForSentence in namedEntities[i]:
-                print(namedEntitiesForSentence.constructTriplet())
-        i = i + 1
+    return build_up_training_data(doc, namedEntities)
 
 
 if __name__ == '__main__':
     raw_data = read_names(science_training_file)
-    named_entity_recognition(raw_data)
+    train_data = named_entity_recognition(raw_data)
+    print(train_data)
