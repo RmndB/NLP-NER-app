@@ -166,18 +166,17 @@ def analyse_doc(output_dir, test_data):
 
 
 def run_named_entity_recognition(train_file, test_file, output_dir):
-    raw_train_data = read_names(train_file)
-    raw_test_data = read_names(test_file)
-    train_data = named_entity_recognition(raw_train_data)
-    test_data = named_entity_recognition(raw_test_data)
     # Training
     if not output_dir.exists() or FORCE_UPDATE:
+        raw_train_data = read_names(train_file)
+        train_data = named_entity_recognition(raw_train_data)
         train_nlp(output_dir, train_data)
+        if BONUS_DISPLAY:
+            print(train_data)
     # Testing
+    raw_test_data = read_names(test_file)
+    test_data = named_entity_recognition(raw_test_data)
     analyse_doc(output_dir, test_data)
-
-    if BONUS_DISPLAY:
-        print(train_data)
 
 
 if __name__ == '__main__':
