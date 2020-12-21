@@ -11,7 +11,8 @@ from tqdm import tqdm
 
 FORCE_UPDATE = 1
 BONUS_DISPLAY = 0
-USE_SHORT_VERSIONS = 0
+USE_SHORT_VERSIONS = 1
+SYMBOL_NOT_ENTITY = 'O'
 
 if USE_SHORT_VERSIONS == 1:
     science_train_file = "./science/train_short.txt"
@@ -105,7 +106,7 @@ def named_entity_recognition(raw_data):
             else:
                 sentence = sentence + " " + pair[0]
 
-            if pair[1] != 'O':
+            if pair[1] != SYMBOL_NOT_ENTITY:
                 namedEntities.setdefault(y, []).append(
                     NamedEntity(pair[1], len(sentence) - len(pair[0]), len(sentence)))
             i = i + 1
@@ -119,6 +120,23 @@ def named_entity_recognition(raw_data):
         doc.append(sentence)
 
     return build_up_training_data(doc, namedEntities)
+
+
+def test_data_to_sentence(raw_data):
+    doc = []
+    doc_final = []
+    skip_next = 0
+    for pair in raw_data:
+        if skip_next == 1:
+            skip_next = 0
+            doc_final.append(doc)
+            doc = []
+        else:
+            if pair[0] == ".":
+                skip_next = 1
+            doc.append((pair[0], pair[1]))
+    doc_final.append(doc)
+    return doc_final
 
 
 # Resources:
@@ -152,12 +170,55 @@ def train_nlp(output_dir, train_data):
         nlp.to_disk(output_dir)
 
 
-def analyse_doc(output_dir, test_data):
+def count_forgotten(sentence):
+    forgotten = 0
+    correct = 0
+    for elt in sentence:
+        if elt[1] != SYMBOL_NOT_ENTITY:
+            forgotten = forgotten + 1
+        else:
+            correct = correct + 1
+    return forgotten, correct
+
+
+def accuracy(doc, sentence):
+    wrong = 0
+    true = 0
+    for ent in doc:
+        is_accurate = 0
+        for elt in sentence:
+            if elt[0] == ent.text and elt[1] == ent.label_:
+                is_accurate = 1
+                sentence.remove(elt)
+                break
+        true = true + is_accurate
+        if is_accurate == 0:
+            wrong = wrong + 1
+    forgotten, true2 = count_forgotten(sentence)
+    true = true + true2
+    return true, wrong, forgotten
+
+
+def analyse_doc(output_dir, test_data, test_as_sentence):
     nlp = spacy.load(output_dir)
+    i = 0
+    right = 0
+    wrong = 0
+    forgotten = 0
     for text, _ in test_data:
         doc = nlp(text)
         print('Entities', [(ent.text, ent.label_) for ent in doc.ents])
-
+        right2, wrong2, forgotten2 = accuracy(doc.ents, test_as_sentence[i])
+        right = right + right2
+        wrong = wrong + wrong2
+        forgotten = forgotten + forgotten2
+        i = i + 1
+    print("Accuracy Report :")
+    print("Number of correct recognition :", right, "words", sep=" ")
+    print("Number of wrong recognition :", wrong, "words", sep=" ")
+    print("Number of recognition forgotten :", forgotten, "words", sep=" ")
+    final_accuracy = (right / (right + wrong + forgotten)) * 100
+    print("Overall accuracy : ", final_accuracy, "%", sep="")
 
 def run_named_entity_recognition(train_file, test_file, output_dir):
     print("Output directory:", output_dir)
@@ -175,8 +236,9 @@ def run_named_entity_recognition(train_file, test_file, output_dir):
     print("Testing...")
     print("Test file:", test_file)
     raw_test_data = read_names(test_file)
+    test_as_sentence = test_data_to_sentence(raw_test_data)
     test_data = named_entity_recognition(raw_test_data)
-    analyse_doc(output_dir, test_data)
+    analyse_doc(output_dir, test_data, test_as_sentence)
 
 
 if __name__ == '__main__':
