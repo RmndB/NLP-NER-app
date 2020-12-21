@@ -180,5 +180,5 @@ def run_named_entity_recognition(train_file, test_file, output_dir):
 
 
 if __name__ == '__main__':
-    run_named_entity_recognition(science_train_file, science_test_file, science_output_dir)
+    # run_named_entity_recognition(science_train_file, science_test_file, science_output_dir)
     run_named_entity_recognition(disease_train_file, disease_test_file, disease_output_dir)

@@ -23,12 +23,7 @@
   },
   "labels":{
     "ner":[
-      "Generic",
-      "Material",
-      "Method",
-      "Metric",
-      "OtherScientificTerm",
-      "Task"
+      "I"
     ]
   }
 }
