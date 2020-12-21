@@ -10327,7 +10327,7 @@ efficient	O
 non-linear	I-Method
 extension	I-Method
 of	I-Method
-WARCA	B-Method
+WARCA	I-Method
 by	O
 using	O
 the	O
@@ -11112,7 +11112,7 @@ present	O
 a	O
 variant	I-Method
 of	I-Method
-TAGs	B-Method
+TAGs	I-Method
 ,	O
 called	O
 synchronous	I-Method

@@ -9,15 +9,24 @@ import spacy
 import random
 from tqdm import tqdm
 
-FORCE_UPDATE = 0
-BONUS_DISPLAY = 0
+FORCE_UPDATE = 1
+BONUS_DISPLAY = 1
+USE_SHORT_VERSIONS = 1
 
-science_output_dir = Path("science/ner")
-science_train_file = "./science/train.txt"
-science_test_file = "./science/test.txt"
-disease_output_dir = Path("disease/ner")
-disease_train_file = "./disease/train.txt"
-disease_test_file = "./disease/test.txt"
+if USE_SHORT_VERSIONS == 1:
+    science_train_file = "./science/train_short.txt"
+    science_test_file = "./science/test_short.txt"
+    disease_train_file = "./disease/train_short.txt"
+    disease_test_file = "./disease/test_short.txt"
+    science_output_dir = Path("science/ner_short")
+    disease_output_dir = Path("disease/ner_short")
+else:
+    science_train_file = "./science/train.txt"
+    science_test_file = "./science/test.txt"
+    disease_train_file = "./disease/train.txt"
+    disease_test_file = "./disease/test.txt"
+    science_output_dir = Path("science/ner")
+    disease_output_dir = Path("disease/ner")
 
 model = None
 n_iter = 100
@@ -29,7 +38,7 @@ class NamedEntity:
     end = 0
 
     def __init__(self, label, begin, end):
-        self.label = remove_prefix(label, ["I-", "B-"])
+        self.label = label
         self.begin = begin
         self.end = end
 

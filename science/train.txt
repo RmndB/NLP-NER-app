@@ -8478,7 +8478,7 @@ that	O
 an	O
 approximation	I-Method
 of	I-Method
-HPSG	B-Method
+HPSG	I-Method
 produces	O
 a	O
 more	O
@@ -12386,7 +12386,7 @@ a	O
 cascade	I-Method
 of	I-Method
 simple	I-Method
-classifiers	B-Method
+classifiers	I-Method
 each	O
 trained	O
 to	O
@@ -43188,7 +43188,7 @@ and	O
 assessing	I-Task
 feasibility	I-Task
 of	I-Task
-classification	B-Task
+classification	I-Task
 .	O
 
 Dimensionality	I-Task
@@ -47177,7 +47177,7 @@ distribution	I-OtherScientificTerm
 of	I-OtherScientificTerm
 speech	I-OtherScientificTerm
 and	I-OtherScientificTerm
-NSI	B-OtherScientificTerm
+NSI	I-OtherScientificTerm
 .	O
 
 Specifically	O
