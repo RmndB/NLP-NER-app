@@ -9,9 +9,9 @@ import spacy
 import random
 from tqdm import tqdm
 
-FORCE_UPDATE = 0
+FORCE_UPDATE = 1
 BONUS_DISPLAY = 0
-USE_SHORT_VERSIONS = 1
+USE_SHORT_VERSIONS = 0
 
 if USE_SHORT_VERSIONS == 1:
     science_train_file = "./science/train_short.txt"
@@ -157,7 +157,6 @@ def analyse_doc(output_dir, test_data):
     for text, _ in test_data:
         doc = nlp(text)
         print('Entities', [(ent.text, ent.label_) for ent in doc.ents])
-        # print('Tokens', [(t.text, t.ent_type_, t.ent_iob) for t in doc])
 
 
 def run_named_entity_recognition(train_file, test_file, output_dir):
