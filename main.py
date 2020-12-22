@@ -127,6 +127,7 @@ def test_data_to_sentence(raw_data):
     doc_final = []
     skip_next = 0
     for pair in raw_data:
+        print(pair)
         if skip_next == 1:
             skip_next = 0
             doc_final.append(doc)
@@ -134,7 +135,8 @@ def test_data_to_sentence(raw_data):
         else:
             if pair[0] == ".":
                 skip_next = 1
-            doc.append((pair[0], pair[1]))
+            if pair[0] != '':
+                doc.append((pair[0], pair[1]))
     doc_final.append(doc)
     return doc_final
 
@@ -243,5 +245,5 @@ def run_named_entity_recognition(train_file, test_file, output_dir):
 
 
 if __name__ == '__main__':
-    # run_named_entity_recognition(science_train_file, science_test_file, science_output_dir)
-    run_named_entity_recognition(disease_train_file, disease_test_file, disease_output_dir)
+    run_named_entity_recognition(science_train_file, science_test_file, science_output_dir)
+    #run_named_entity_recognition(disease_train_file, disease_test_file, disease_output_dir)
