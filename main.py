@@ -127,7 +127,8 @@ def test_data_to_sentence(raw_data):
     doc_final = []
     skip_next = 0
     for pair in raw_data:
-        print(pair)
+        if BONUS_DISPLAY:
+            print(pair)
         if skip_next == 1:
             skip_next = 0
             doc_final.append(doc)
@@ -209,7 +210,8 @@ def analyse_doc(output_dir, test_data, test_as_sentence):
     forgotten = 0
     for text, _ in test_data:
         doc = nlp(text)
-        print('Entities', [(ent.text, ent.label_) for ent in doc.ents])
+        if BONUS_DISPLAY:
+            print('Entities', [(ent.text, ent.label_) for ent in doc.ents])
         right2, wrong2, forgotten2 = accuracy(doc.ents, test_as_sentence[i])
         right = right + right2
         wrong = wrong + wrong2
