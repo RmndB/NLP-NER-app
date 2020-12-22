@@ -9,8 +9,11 @@ import spacy
 import random
 from tqdm import tqdm
 
+# Set to 1 to rebuild the models
 FORCE_UPDATE = 0
+# Set to 1 to display debug log
 BONUS_DISPLAY = 0
+# Set to 1 use shortened data files
 USE_SHORT_VERSIONS = 0
 SYMBOL_NOT_ENTITY = 'O'
 
