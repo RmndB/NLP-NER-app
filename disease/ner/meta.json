@@ -23,7 +23,8 @@
   },
   "labels":{
     "ner":[
-      "Disease"
+      "B",
+      "I"
     ]
   }
 }

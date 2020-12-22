@@ -9,9 +9,9 @@ import spacy
 import random
 from tqdm import tqdm
 
-FORCE_UPDATE = 1
+FORCE_UPDATE = 0
 BONUS_DISPLAY = 0
-USE_SHORT_VERSIONS = 1
+USE_SHORT_VERSIONS = 0
 SYMBOL_NOT_ENTITY = 'O'
 
 if USE_SHORT_VERSIONS == 1:
@@ -219,6 +219,7 @@ def analyse_doc(output_dir, test_data, test_as_sentence):
     print("Number of recognition forgotten :", forgotten, "words", sep=" ")
     final_accuracy = (right / (right + wrong + forgotten)) * 100
     print("Overall accuracy : ", final_accuracy, "%", sep="")
+
 
 def run_named_entity_recognition(train_file, test_file, output_dir):
     print("Output directory:", output_dir)
